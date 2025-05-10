@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4587ad1b17d6a694f857a8196fa6b117, type: 3}
+  m_Name: MatrixData
+  m_EditorClassIdentifier: 
+  InformationMatrix:
+    Width: 1080
+    Height: 960
+    Size: {x: 6, y: 6}
+    Spacing: {x: 20, y: 20}
+    Padding: {x: 130, y: 70}
+    Direction: {x: 1, y: -1}
+  InformationElement:
+    Size: 120
