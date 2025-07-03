@@ -7,6 +7,7 @@ namespace View.Enemy
     {
         private RectTransform _rectTransform;
         private Vector2 _startPos;
+        public RectTransform Bomb;
 
         private void Awake()
         {
@@ -26,9 +27,24 @@ namespace View.Enemy
             this._rectTransform.DOLocalMove(playerPos, 20f).SetEase(Ease.Linear);
         }
 
-        public Vector2 GetRectTransform()
+        public void PauseMove()
+        {
+            DOTween.Kill(this._rectTransform);
+        }
+
+        public void ThrowBomb(Vector2 pos)
+        {
+            this.Bomb.DOMove(pos, 1f).SetEase(Ease.OutQuad);
+        }
+
+        public Vector2 GetPosRectTransform()
         {
             return this._rectTransform.anchoredPosition;
+        }
+
+        public RectTransform GetRectTransform()
+        {
+            return this._rectTransform;
         }
 
         public void SetActive(bool isActive)

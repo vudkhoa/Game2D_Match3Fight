@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d6a4bf007c619945b00cd21571c26e9, type: 3}
+  m_Name: SkillData
+  m_EditorClassIdentifier: 
+  Skills:
+  - SkillIcon:
+      QueueIcon:
+        Sprite: {fileID: 21300000, guid: 5fcf44e93bc274d4aa563236fc969cf3, type: 3}
+      MatrixIcon:
+        Sprite: {fileID: 21300000, guid: e67af4decaeea4f67ba3f3ec9f691515, type: 3}
+    SkillBackground:
+      QueueBackground:
+        Sprite: {fileID: 21300000, guid: 9a30b28dc9fba4e12a839773a1f10288, type: 3}
+      MatrixBackground:
+        Sprite: {fileID: 21300000, guid: 38e324f2965ad4660b4aefaba2575df8, type: 3}
+    cooldownTime: 1
+  - SkillIcon:
+      QueueIcon:
+        Sprite: {fileID: 21300000, guid: 6058f8adda5c4497891926125a7498f7, type: 3}
+      MatrixIcon:
+        Sprite: {fileID: 21300000, guid: f45cebaa1b26743549bf31b1533d6c54, type: 3}
+    SkillBackground:
+      QueueBackground:
+        Sprite: {fileID: 21300000, guid: bf6cf00c40dc5483b8111e7edbf3ab40, type: 3}
+      MatrixBackground:
+        Sprite: {fileID: 21300000, guid: 38e324f2965ad4660b4aefaba2575df8, type: 3}
+    cooldownTime: 2
+  - SkillIcon:
+      QueueIcon:
+        Sprite: {fileID: 21300000, guid: c2a49b7075ab94c8292f1ef050fccd61, type: 3}
+      MatrixIcon:
+        Sprite: {fileID: 21300000, guid: 5692db8a476a44e039316aeecbe16bc6, type: 3}
+    SkillBackground:
+      QueueBackground:
+        Sprite: {fileID: 21300000, guid: cab1bed53d60e4416ad1f76c9b70e7a6, type: 3}
+      MatrixBackground:
+        Sprite: {fileID: 21300000, guid: 38e324f2965ad4660b4aefaba2575df8, type: 3}
+    cooldownTime: 3

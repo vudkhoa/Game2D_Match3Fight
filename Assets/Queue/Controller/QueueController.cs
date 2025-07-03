@@ -1,10 +1,13 @@
 namespace Controller.Queue
 {
-    using Model.Queue;
-    using View.Queue;
+    using Controller.Enemy;
+    using Controller.Player;
+    using Controller.Skill;
     using CustomData;
     using CustomUtils;
+    using Model.Queue;
     using UnityEngine;
+    using View.Queue;
 
     public class QueueController : SingletonMono<QueueController>
     {
@@ -18,6 +21,47 @@ namespace Controller.Queue
         private void Start()
         {
             this.CreateQueue();
+        }
+
+        private void Update()
+        {
+            if (this.QueueElementModelList == null || !EnemyController.Instance.ExistEnemy())
+            {
+                return;
+            }
+
+            if (!SetStateSkill())
+            {
+                return;
+            }
+
+            if (this.QueueElementModelList[0].Count > 0 && SkillController.Instance.State == 1 && this.QueueElementModelList[0].ReduceCount(1))
+            { 
+                PlayerController.Instance.Shooting();
+            }
+            else if (this.QueueElementModelList[1].Count > 0 && SkillController.Instance.State == 2 && this.QueueElementModelList[1].ReduceCount(1))
+            {
+                SkillController.Instance.ShowFlag();
+            }
+        }
+
+        private bool SetStateSkill()
+        {
+            if (this.QueueElementModelList[0].Count > 0)
+            {
+                SkillController.Instance.State = 1;
+                return true;
+            }
+            else if (this.QueueElementModelList[1].Count > 0)
+            {
+                SkillController.Instance.State = 2;
+                return true;
+            }
+            else
+            {
+                SkillController.Instance.State = 0;
+                return false;
+            }
         }
 
         private void CreateQueue()
@@ -51,9 +95,10 @@ namespace Controller.Queue
                 pos.x += direction * (widthElement) + direction * spacing;
 
                 QueueElementModel queueModel = new QueueElementModel();
-                queueModel.Init(queueView);
+                queueModel.SetView(queueView);
                 queueModel.SetType(DataManager.Instance.SkillLevelData.skillLevels[0].skills[i].nameSkill);
                 queueModel.PlusCount(0);
+                queueModel.SetCooldownTime(1f);
                 this.QueueElementModelList[i] = queueModel;
             }
         }
@@ -65,7 +110,6 @@ namespace Controller.Queue
             {
                 if (this.QueueElementModelList[i].Type == type)
                 {
-                    //Debug.Log("Ok");
                     this.QueueElementModelList[i].PlusCount(1);
                 }
             }

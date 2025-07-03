@@ -8,5 +8,5 @@ public class DataManager : SingletonMono<DataManager>
     public MatrixLevelData MatrixLevelData;
     public SkillLevelSO SkillLevelData;
     public QueueElemntSkinSO queueElemntSkinData;
-    public IconSkillSO IconSkillData;
+    public SkillSO SkillData;
 }

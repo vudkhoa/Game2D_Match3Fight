@@ -22,17 +22,23 @@ namespace View.Skill.Bullet
             this._index = index;
         }
 
+        public void SetActive(bool isActive)
+        {
+            this.gameObject.SetActive(isActive);
+        }
+
         public IEnumerator GetEnemyAncho(int index)
         {
             yield return new WaitForSeconds(0.95f);
             pos2 = EnemyController.Instance.LstEnemy[index].EnemyView.GetComponentInChildren<RectTransform>().anchoredPosition;
-            pos2.x = pos2.x + 270f + 884f - 120f;
+            pos2.x = pos2.x + 170f + 884f - 120f;
             pos2.y = pos2.y + 168f - 120f - 38f;
         }
 
         public void KillEnemy(int index)
         {
             RePosBullet();
+            EnemyController.Instance.LstEnemy[index].IsDead = true;
             EnemyController.Instance.LstEnemy[index].EnemyView.SetActive(false);
         }
 
@@ -40,6 +46,7 @@ namespace View.Skill.Bullet
         {
             this._rectTransform.anchoredPosition = Vector2.zero;
             this._rectTransform.localRotation = Quaternion.identity;
+            this.SetActive(false);
             SkillController.Instance.ResetBullet(this._index);
         }
 

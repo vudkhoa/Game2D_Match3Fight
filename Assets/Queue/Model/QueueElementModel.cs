@@ -1,6 +1,7 @@
 namespace Model.Queue {
     using View.Queue;
     using CustomData;
+    using UnityEngine;
 
     public class QueueElementModel
     {
@@ -8,10 +9,16 @@ namespace Model.Queue {
         public bool IsActive = false;
         public int Count = 0;
         public MatrixElementType Type;
+        private float _cooldownTime = 0f;
 
-        public void Init(QueueElementView queueElementView)
+        public void SetView(QueueElementView queueElementView)
         {
             this.QueueElementView = queueElementView;
+        }
+
+        public void SetCooldownTime(float time)
+        {
+            this._cooldownTime = time;
         }
 
         public void PlusCount(int count)
@@ -20,10 +27,24 @@ namespace Model.Queue {
             this.QueueElementView.SetCount(this.Count);
         }
 
+        public bool ReduceCount(int count)
+        {
+            if (this.Count > 0 && !this.QueueElementView.OnCooldown)
+            {
+                this.QueueElementView.StartCooldown();
+                this.Count -= count;
+                this.QueueElementView.SetCount(this.Count);
+                return true;
+            }
+            return false;
+        }
+
         public void SetType(MatrixElementType type)
         {
             this.Type = type;
             this.QueueElementView.SetType(type);
+            this._cooldownTime = DataManager.Instance.SkillData.Skills[(int)type - 1].cooldownTime;
+            this.QueueElementView.SetCooldownTime(this._cooldownTime);
         }
     }
 }

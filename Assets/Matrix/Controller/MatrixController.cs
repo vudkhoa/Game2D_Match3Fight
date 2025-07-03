@@ -2,6 +2,7 @@ namespace Controller.Matrix
 {
     using Controller.Player;
     using Controller.Queue;
+    using Controller.Skill;
     using CustomData;
     using CustomUtils;
     using Model.Matrix;
@@ -101,7 +102,7 @@ namespace Controller.Matrix
 
         private void ShuffleMap()
         {
-            Debug.Log("Shuffle");
+            //Debug.Log("Shuffle");
             List<MatrixElementType> elementTypes = new List<MatrixElementType>();
             
             for (int i = MatrixSize.x - 1; i >= 0; --i)
@@ -126,14 +127,14 @@ namespace Controller.Matrix
                     if (m == n)
                     {
                         count++;
-                        if (count > 3)
+                        if (count >= 3)
                         {
                             checkCount = true;
                             break;
                         }
                     }
                 }
-                Debug.Log("Element Type: " + m + " Count: " + count);
+                //Debug.Log("Element Type: " + m + " Count: " + count);
             }
             if (checkCount)
             {
@@ -214,7 +215,7 @@ namespace Controller.Matrix
                             !this.MatrixElementModelList[i, j + 2].IsMatch
                         )
                         {
-                            Debug.Log(1);
+                            //Debug.Log(1);
                             Vector2Int posCheck1 = new Vector2Int(i - 1, j + 2);
                             Vector2Int posCheck2 = new Vector2Int(i + 1, j + 2);
                             Vector2Int posCheck3 = new Vector2Int(i, j + 3);
@@ -232,7 +233,7 @@ namespace Controller.Matrix
                             CheckPosInvalid(posMatch) && 
                             this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type)
                         {
-                            Debug.Log(2);
+                            //Debug.Log(2);
                             Vector2Int posCheck1 = new Vector2Int(i + 2, j - 1);
                             Vector2Int posCheck2 = new Vector2Int(i + 2, j + 1);
                             Vector2Int posCheck3 = new Vector2Int(i + 3, j);
@@ -262,7 +263,7 @@ namespace Controller.Matrix
                         posMatch.y = j;
                         if (CheckPosInvalid(posMatch) && this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type)
                         {
-                            Debug.Log(4);
+                            //Debug.Log(4);
                             Vector2Int posCheck1 = new Vector2Int(i + 1, j - 1);
                             Vector2Int posCheck2 = new Vector2Int(i + 1, j + 1);
                             if ((CheckPosInvalid(posCheck1) && this.MatrixElementModelList[posCheck1.x, posCheck1.y].MatrixElementType == type) ||
@@ -412,11 +413,11 @@ namespace Controller.Matrix
             {
                 MatrixElementModelList[pos.x, pos.y].SetMatch(true);
             }
-
-            if (CheckMatch && (int)type == 1)
-            {
-                PlayerController.Instance.Shooting();
-            }
+            //if (CheckMatch && (int)type == 2)
+            //{
+            //    SkillController.Instance.State = 2;
+            //    SkillController.Instance.ShowFlag();
+            //}
 
             return CheckMatch;
         }

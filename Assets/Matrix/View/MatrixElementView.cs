@@ -5,16 +5,19 @@ namespace View.Matrix
     using TMPro;
     using UnityEngine;
     using UnityEngine.EventSystems;
+    using UnityEngine.UI;
 
     public class MatrixElementView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        public TextMeshProUGUI Text;
+        public Image ImageBackground;
+        public Image ImageIcon;
 
         private Vector2Int _pos;
 
         public void SetType(MatrixElementType type)
         {
-            this.Text.text = ((int)type).ToString();
+            this.ImageBackground.sprite = DataManager.Instance.SkillData.Skills[(int)type - 1].SkillBackground.MatrixBackground.Sprite;
+            this.ImageIcon.sprite = DataManager.Instance.SkillData.Skills[(int)type - 1].SkillIcon.MatrixIcon.Sprite;
         }
 
         public void SetPos(Vector2Int pos)
