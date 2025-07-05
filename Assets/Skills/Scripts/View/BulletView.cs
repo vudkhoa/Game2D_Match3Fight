@@ -38,7 +38,6 @@ namespace View.Skill.Bullet
         public void KillEnemy(int index)
         {
             RePosBullet();
-            EnemyController.Instance.LstEnemy[index].IsDead = true;
             EnemyController.Instance.LstEnemy[index].EnemyView.SetActive(false);
         }
 

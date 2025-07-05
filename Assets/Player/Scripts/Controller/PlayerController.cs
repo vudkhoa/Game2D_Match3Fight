@@ -32,10 +32,5 @@ namespace Controller.Player
             SkillController.Instance.Shooting(EnemyController.Instance.GetIndex());
             this._playerModel.PlayerView.SetState(1);
         }
-
-        public Vector2 GetPosPlayer()
-        {
-            return this._playerModel.PlayerView.GetComponent<RectTransform>().anchoredPosition;
-        }
     }
 }

@@ -25,12 +25,18 @@ namespace Controller.Queue
 
         private void Update()
         {
-            if (this.QueueElementModelList == null || !EnemyController.Instance.ExistEnemy())
+            if (!SetStateSkill())
             {
                 return;
             }
 
-            if (!SetStateSkill())
+            if (this.QueueElementModelList == null)
+            {
+                return;
+            }
+
+            int state = SkillController.Instance.State;
+            if (!EnemyController.Instance.ExistEnemy(state))
             {
                 return;
             }
@@ -42,6 +48,10 @@ namespace Controller.Queue
             else if (this.QueueElementModelList[1].Count > 0 && SkillController.Instance.State == 2 && this.QueueElementModelList[1].ReduceCount(1))
             {
                 SkillController.Instance.ShowFlag();
+            }
+            else if (this.QueueElementModelList[2].Count > 0 && SkillController.Instance.State == 3 && this.QueueElementModelList[2].ReduceCount(1))
+            {
+                SkillController.Instance.FirestormStart();
             }
         }
 
@@ -55,6 +65,11 @@ namespace Controller.Queue
             else if (this.QueueElementModelList[1].Count > 0)
             {
                 SkillController.Instance.State = 2;
+                return true;
+            }
+            else if (this.QueueElementModelList[2].Count > 0)
+            {
+                SkillController.Instance.State = 3;
                 return true;
             }
             else
@@ -103,14 +118,14 @@ namespace Controller.Queue
             }
         }
 
-        public void PlusCount(MatrixElementType type)
+        public void PlusCount(MatrixElementType type, int count)
         {
             if (this.QueueElementModelList == null) return;
             for (int i = 0; i < this.QueueElementModelList.Length; ++i)
             {
                 if (this.QueueElementModelList[i].Type == type)
                 {
-                    this.QueueElementModelList[i].PlusCount(1);
+                    this.QueueElementModelList[i].PlusCount(count);
                 }
             }
         }

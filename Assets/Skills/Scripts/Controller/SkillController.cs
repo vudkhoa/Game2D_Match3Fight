@@ -6,9 +6,11 @@ namespace Controller.Skill
     using Model.Skill.Flag;
     using System.Collections;
     using System.Collections.Generic;
+    using Unity.VisualScripting;
     using UnityEngine;
     using View.Skill.Bullet;
     using View.Skill.Flag;
+    using CustomUtils.Vukhoa;
 
     public class SkillController : SingletonMono<SkillController>
     {
@@ -28,19 +30,45 @@ namespace Controller.Skill
         public FlagView FlagPrefab;
         public RectTransform FlagParentEnemy;
 
-        private List<FlagModel> _lstFlagEnemy;
+        private List<FlagModel> _lstFlag;
         private int _flagSize = 20;
+
+        [Header(" Fire Information ")]
+        public FireView FirePrefab;
+        public RectTransform FireStormParentPrefab;
+        public RectTransform FireParentPrefab;
+        public RectTransform FireMoveParentPrefab;
+        public RectTransform FireMovePrefab;
+
+        [Header(" Start Game ")]
+        public RectTransform StartSkillBullet;
+        public RectTransform StartSkillFlag;
+        public RectTransform StartSkillFireStorm;
+
+        public List<RectTransform> LstFireMove;
+        private List<RectTransform> _lstFireParent;
+        private List<FirestormClass> _lstFireStorm;
 
         public int State = 0;
         private int _curEnemyIndex = -1;
+        private int _sizeFire = 9;
+        private int _sizeFireStorm = 20;
+
+        public class FirestormClass
+        {
+            public List<FireModel> Firestorm;
+            public bool IsUsed;
+        }
 
         private void Start()
         {
             this.SpawnPoint();
             this.SpawnBullet();
+            this.SpawnFireParents();
+            this.SpawnFireMoves();
+            this.SpawnFireStorms();
         }
 
-        
         private void SpawnPoint()
         {
             this._bulletParentPoint = Instantiate(this.BulletParentPointPrefab, this.transform);
@@ -91,12 +119,11 @@ namespace Controller.Skill
             this._lstBullet[index].IsUsed = true;
         }
 
-
         // ---------------------------------------------Flag--------------------------------------------//
-        public void SpawnFlagEnemy()
+        public void SpawnFlag()
         {
             // For Enemy
-            this._lstFlagEnemy = new List<FlagModel>();
+            this._lstFlag = new List<FlagModel>();
             for (int i = 0; i < this._flagSize; ++i)
             {
                 FlagView flagGO = Instantiate(this.FlagPrefab, this.FlagParentEnemy);
@@ -104,41 +131,141 @@ namespace Controller.Skill
 
                 flagModel.SetView(flagGO);
                 flagModel.FlagView.SetActive(false);
-                this._lstFlagEnemy.Add(flagModel);
+                flagModel.IsUsed = false;
+                this._lstFlag.Add(flagModel);
             }
+        }
+
+        public int GetIndexFlag(int indexEnemy)
+        {
+            int index = -1;
+            foreach (var flag in this._lstFlag)
+            {
+                index++;
+                if (!flag.IsUsed)
+                {
+                    flag.IsUsed = true;
+                    flag.SetIndexEnemy(indexEnemy);
+                    return index;
+                }
+            }
+            return index;
         }
 
         public void ShowFlag()
         {
-            Debug.Log("Show Flag");
-            this._lstFlagEnemy[0].FlagView.SetActive(true);
-            int index = EnemyController.Instance.GetIndex();
-            Debug.Log("Index: " + index);
-            EnemyController.Instance.LstEnemy[index].EnemyView.PauseMove();
-            EnemyController.Instance.LstEnemy[index].IsDead = true;
-            Vector2 showPoint = EnemyController.Instance.LstEnemy[index].EnemyView.GetComponentInChildren<RectTransform>().anchoredPosition;
-            showPoint.y -= this.FlagParentEnemy.rect.height / 2 + 50f;
-            showPoint.x += 170f;
-            this._lstFlagEnemy[0].IsUsed = true;
-            this._lstFlagEnemy[index].FlagView.ShowFlag();
-            this._lstFlagEnemy[index].FlagView.SetPosition(showPoint);
-            this._curEnemyIndex = index;
+            int indexEnemy = EnemyController.Instance.GetIndex();
+            int indexFlag = this.GetIndexFlag(indexEnemy);
+            this._lstFlag[indexFlag].FlagView.SetActive(true);
+            
+            EnemyController.Instance.LstEnemy[indexEnemy].EnemyView.PauseMove();
 
+            Vector3 showPoint = EnemyController.Instance.LstEnemy[indexEnemy].EnemyView.GetComponent<RectTransform>().transform.position;
+            this._lstFlag[indexFlag].FlagView.SetPosition(showPoint);
+            this._lstFlag[indexFlag].FlagView.ShowFlag();
+            this._curEnemyIndex = indexEnemy;
+            EnemyController.Instance.LstEnemy[this._curEnemyIndex].EnemyView.gameObject.tag = "PlayerControlled";
         }
 
-        public IEnumerator ThrowBomb()
+        public void KillFlag(int indexEnemy)
         {
-            Debug.Log("Throw Bomb");
-            int i = EnemyController.Instance.GetIndex();
-            Vector3 newPos = EnemyController.Instance.LstEnemy[i].EnemyView.GetRectTransform().transform.position;
-            EnemyController.Instance.LstEnemy[i].IsDead = true;
-            EnemyController.Instance.LstEnemy[_curEnemyIndex].EnemyView.ThrowBomb(newPos);
-            yield return new WaitForSeconds(1f);
-            EnemyController.Instance.LstEnemy[i].EnemyView.SetActive(false);
-            EnemyController.Instance.LstEnemy[_curEnemyIndex].EnemyView.SetActive(false);
-            this._lstFlagEnemy[0].FlagView.SetPosition(Vector2.zero);
-            //this._lstFlagEnemy[0].FlagView.SetActive(false);
+            int index = -1;
+            foreach (FlagModel flag in this._lstFlag)
+            {
+                index++;
+                if (flag.IsUsed == true && flag.IndexEnemy == indexEnemy)
+                {
+                    this._lstFlag[index].SetIndexEnemy(-1);
+                    this._lstFlag[index].IsUsed = false;
+                    this._lstFlag[index].FlagView.SetActive(false);
+                }
+            }
         }
 
+        // ---------------------------------------------FireStorm--------------------------------------------//
+        public void SpawnFireParents()
+        {
+            this._lstFireParent = new List<RectTransform>();
+            for (int i = 0; i < this._sizeFireStorm; ++i)
+            {
+                RectTransform fireParent = Instantiate(this.FireParentPrefab, this.FireStormParentPrefab);
+                this._lstFireParent.Add(fireParent);
+            }
+        }
+
+        public void SpawnFireMoves()
+        {
+            this.LstFireMove = new List<RectTransform>();
+            RectTransform fiveMoveParent = Instantiate(this.FireMoveParentPrefab, this.FireStormParentPrefab);
+            for (int i = 0; i < this._sizeFire; ++i)
+            {
+                RectTransform fireMove = Instantiate(this.FireMovePrefab, fiveMoveParent);
+                if (i > 0)
+                {
+                    Vector2 pos = fireMove.anchoredPosition;
+                    pos.x = (this.LstFireMove[i - 1].anchoredPosition.x + this.LstFireMove[i - 1].rect.width);
+                    fireMove.anchoredPosition = pos;
+                }
+
+                this.LstFireMove.Add(fireMove);
+            }
+        }
+
+        public void SpawnFireStorms()
+        {
+            this._lstFireStorm = new List<FirestormClass>();
+            for (int i = 0; i < this._sizeFireStorm; ++i)
+            {
+                FirestormClass firestormClass = new FirestormClass();
+                List <FireModel> fireStorm = new List<FireModel>();
+                for (int j = 0; j < this._sizeFire; ++j)
+                {
+                    FireView fireView = Instantiate(this.FirePrefab, this._lstFireParent[i]);
+                    FireModel fireModel = new FireModel();
+                    fireModel.SetView(fireView);
+                    fireModel.FireView.SetPosition(this.LstFireMove[j].anchoredPosition);
+                    fireModel.FireView.gameObject.SetActive(false);
+                    fireStorm.Add(fireModel);
+                }
+                firestormClass.Firestorm = fireStorm;
+                firestormClass.IsUsed = false;
+                this._lstFireStorm.Add(firestormClass);
+            }
+        }
+
+        public int GetIndexFireStorm()
+        {
+            int index = -1;
+            foreach (var firestorm in this._lstFireStorm)
+            {
+                index++;
+                if (!firestorm.IsUsed)
+                {
+                    firestorm.IsUsed = true;
+                    return index;
+                }
+            }
+            return -1;
+        }
+
+        public void FirestormStart()
+        {
+            StartCoroutine(this.FirestormAttacking(GetIndexFireStorm()));
+        }
+
+        public IEnumerator FirestormAttacking(int index)
+        {
+            if (index != -1)
+            {
+                //Debug.Log("Firestorm attack");
+                this.LstFireMove.ShuffleList();
+                for (int i = 0; i < this._sizeFire; ++i)
+                {
+                    this._lstFireStorm[index].Firestorm[i].FireView.gameObject.SetActive(true);
+                    this._lstFireStorm[index].Firestorm[i].FireView.FireFalling(i);
+                    yield return new WaitForSeconds(Random.Range(0.2f, 0.5f));
+                }
+            }
+        }
     }
 }

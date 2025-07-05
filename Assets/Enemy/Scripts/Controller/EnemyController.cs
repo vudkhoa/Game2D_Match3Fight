@@ -5,7 +5,6 @@ namespace Controller.Enemy
     using Model.Enemy;
     using System.Collections;
     using System.Collections.Generic;
-    using Unity.VisualScripting;
     using UnityEngine;
     using View.Enemy;
 
@@ -23,7 +22,7 @@ namespace Controller.Enemy
         private int _enemySize = 10;
         private void Start()
         {
-            SkillController.Instance.SpawnFlagEnemy();
+            SkillController.Instance.SpawnFlag();
             this.SpawnPoints();
             this.SpawnEnemy(this._enemySize);
             this.MoveEnemy(this._enemyMovePoint.anchoredPosition);
@@ -37,6 +36,7 @@ namespace Controller.Enemy
                 EnemyModel enemyModel = new EnemyModel();
                 enemyModel.SetView(enemyGO.GetComponent<EnemyView>());
                 enemyModel.EnemyView.SetActive(false);
+                enemyModel.EnemyView.SetIndex(i);
                 if (this.LstEnemy == null)
                 {
                     this.LstEnemy = new List<EnemyModel>();
@@ -62,7 +62,7 @@ namespace Controller.Enemy
             {
                 enemy.EnemyView.SetActive(true);
                 enemy.EnemyView.Move(playerPos);
-                yield return new WaitForSeconds(Random.Range(0f, 20f));
+                yield return new WaitForSeconds(5f);
             }
         }
 
@@ -78,22 +78,37 @@ namespace Controller.Enemy
                     return index;
                 }
             }
-
             return index;
         }
 
-
-
-        public bool ExistEnemy()
+        public bool ExistEnemy(int i)
         {
             foreach (EnemyModel enemy in this.LstEnemy)
             {
                 if (!enemy.IsDead && enemy.EnemyView.gameObject.activeSelf)
                 {
-                    return true;
+                    if (i == 1 && enemy.EnemyView.GetComponent<RectTransform>().transform.position.x <= SkillController.Instance.StartSkillBullet.transform.position.x)
+                    {
+                        return true;
+                    }
+                    else if (i == 2 && enemy.EnemyView.GetComponent<RectTransform>().transform.position.x <= SkillController.Instance.StartSkillFlag.transform.position.x)
+                    {
+                        return true;
+                    }
+                    else if (i == 3 && enemy.EnemyView.GetComponent<RectTransform>().transform.position.x <= SkillController.Instance.StartSkillFireStorm.transform.position.x)
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
+        }
+
+        public void KillEnemy(int index)
+        {
+            this.LstEnemy[index].IsDead = true;
+            this.LstEnemy[index].EnemyView.SetActive(false);
+            this.LstEnemy[index].EnemyView.PauseMove();
         }
     }
 }

@@ -33,15 +33,23 @@ namespace Model.Matrix
             this.MatrixElementView.SetPos(pos);
         }
 
-        public void SetMatch (bool isMatch)
+        public void SetMatch (bool isMatch, bool isEffect = false)
         {
             this.IsMatch = isMatch;
-            this.SetActiveView();
+            this.SetActiveView(isEffect);
         }
 
-        public void SetActiveView()
+        public void SetActiveView(bool isEffect = false)
         {
-            this.MatrixElementView.gameObject.SetActive(!this.IsMatch);
+            if (!isEffect)
+            {
+                //Debug.Log("Dung");
+                this.MatrixElementView.gameObject.SetActive(!this.IsMatch);
+            }
+            else
+            {
+                this.MatrixElementView.PlayMatchAnimation();
+            }
         }
     }
 }

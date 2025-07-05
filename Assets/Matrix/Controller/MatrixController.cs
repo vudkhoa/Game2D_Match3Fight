@@ -1,15 +1,14 @@
-namespace Controller.Matrix
+﻿namespace Controller.Matrix
 {
-    using Controller.Player;
     using Controller.Queue;
-    using Controller.Skill;
     using CustomData;
     using CustomUtils;
     using Model.Matrix;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Drawing;
     using UnityEngine;
     using View.Matrix;
-    using static UnityEditor.PlayerSettings;
 
     public enum Direction
     {
@@ -70,15 +69,18 @@ namespace Controller.Matrix
                     MatrixElementType currentType = MatrixElementModelList[this.CurrentPos.x, this.CurrentPos.y].MatrixElementType;
                     MatrixElementType newType = MatrixElementModelList[newPos.x, newPos.y].MatrixElementType;
                     bool checkMatch = false;
-                    checkMatch = this.CheckMatch(this.CurrentPos);
-                    if (checkMatch)
+                    int point = 0;
+                    point = this.CheckMatch(this.CurrentPos);
+                    if (point != -1)
                     {
-                        QueueController.Instance.PlusCount(currentType);
+                        //QueueController.Instance.PlusCount(currentType, point);
+                        checkMatch = true;
                     }
 
-                    if (this.CheckMatch(newPos))
+                    point = this.CheckMatch(newPos);
+                    if (point != -1)
                     {
-                        QueueController.Instance.PlusCount(newType);
+                        //QueueController.Instance.PlusCount(newType, point);
                         checkMatch = true; 
                     }
 
@@ -90,19 +92,14 @@ namespace Controller.Matrix
                     {
                         ReFlowDown();
                     }
-                    if (!this.CheckMap()) 
-                    {
-                        this.ShuffleMap();
-                    }
-
                 }
                 this.ResetCurrentPos();
             }
         }
 
-        private void ShuffleMap()
+        private IEnumerator ShuffleMap()
         {
-            //Debug.Log("Shuffle");
+            yield return new WaitForSeconds(1f);
             List<MatrixElementType> elementTypes = new List<MatrixElementType>();
             
             for (int i = MatrixSize.x - 1; i >= 0; --i)
@@ -134,7 +131,6 @@ namespace Controller.Matrix
                         }
                     }
                 }
-                //Debug.Log("Element Type: " + m + " Count: " + count);
             }
             if (checkCount)
             {
@@ -143,7 +139,7 @@ namespace Controller.Matrix
                 int index = -1;
                 for (int i = MatrixSize.x - 1; i >= 0; --i)
                 {
-                    for (int j = 0; j < MatrixSize.y ; ++j)
+                    for (int j = 0; j < MatrixSize.y; ++j)
                     {
                         index++;
                         if (index < elementTypes.Count)
@@ -157,13 +153,7 @@ namespace Controller.Matrix
                         }
                     }
                 }
-
-                ReCheckMatch();
-
-                if (!this.CheckMap())
-                {
-                    this.ShuffleMap();
-                }
+                StartCoroutine(ReCheckMatch());
             }
             else
             {
@@ -195,7 +185,6 @@ namespace Controller.Matrix
 
         private bool CheckMap()
         {
-            //Debug.Log("CheckMap");
             for (int i = MatrixSize.x - 1; i >= 0; --i)
             {
                 for (int j = MatrixSize.y - 1; j >= 0; --j)
@@ -210,7 +199,6 @@ namespace Controller.Matrix
                         (
                             CheckPosInvalid(posMatch) && 
                             this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type &&
-                            (j + 2 >= 0 && j + 2 < MatrixSize.x) &&
                             (j + 2 >= 0 && j + 2 < MatrixSize.y) &&
                             !this.MatrixElementModelList[i, j + 2].IsMatch
                         )
@@ -231,7 +219,10 @@ namespace Controller.Matrix
                         posMatch.y = j;
                         if (
                             CheckPosInvalid(posMatch) && 
-                            this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type)
+                            this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type &&
+                            (i + 2 >= 0 && i + 2 < MatrixSize.x) &&
+                            !this.MatrixElementModelList[i + 2, j].IsMatch
+                        )
                         {
                             //Debug.Log(2);
                             Vector2Int posCheck1 = new Vector2Int(i + 2, j - 1);
@@ -247,7 +238,12 @@ namespace Controller.Matrix
 
                         posMatch.x = i;
                         posMatch.y = j + 2;
-                        if (CheckPosInvalid(posMatch) && this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type)
+                        if (
+                            CheckPosInvalid(posMatch) && 
+                            this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type &&
+                            (j + 1 >= 0 && j + 1 < MatrixSize.y) &&
+                            !this.MatrixElementModelList[i, j + 1].IsMatch
+                        )
                         {
                             //Debug.Log(3);
                             Vector2Int posCheck1 = new Vector2Int(i - 1, j + 1);
@@ -261,9 +257,13 @@ namespace Controller.Matrix
 
                         posMatch.x = i + 2;
                         posMatch.y = j;
-                        if (CheckPosInvalid(posMatch) && this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type)
+                        if (
+                            CheckPosInvalid(posMatch) && 
+                            this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type &&
+                            (i + 1 >= 0 && i + 1 < MatrixSize.x) &&
+                            !this.MatrixElementModelList[i + 1, j].IsMatch  
+                        )
                         {
-                            //Debug.Log(4);
                             Vector2Int posCheck1 = new Vector2Int(i + 1, j - 1);
                             Vector2Int posCheck2 = new Vector2Int(i + 1, j + 1);
                             if ((CheckPosInvalid(posCheck1) && this.MatrixElementModelList[posCheck1.x, posCheck1.y].MatrixElementType == type) ||
@@ -275,27 +275,36 @@ namespace Controller.Matrix
                     }
                 }
             }
-
+            
             return false;
         }
 
-        private void ReCheckMatch()
+        private IEnumerator ReCheckMatch()
         {
-            //Debug.Log("ReCheckMatch");
+            yield return new WaitForSeconds(1.05f);
             bool isMatch = false;
+            int point = 0;
             for (int i = 0; i < MatrixSize.x; ++i)
             {
                 for (int j = 0; j < MatrixSize.y; ++j)
                 {
                     if (!this.MatrixElementModelList[i, j].IsMatch)
                     {
-                        isMatch = CheckMatch(new Vector2Int(i, j)) || isMatch;
+                        point = CheckMatch(new Vector2Int(i, j));
+                        isMatch = (point != -1) || isMatch;
                     }
                 }
             }
             if (isMatch)
             {
                 ReFlowDown();
+            }
+            else
+            {
+                if (!this.CheckMap())
+                {
+                    StartCoroutine(this.ShuffleMap());
+                }
             }
         }
 
@@ -305,12 +314,13 @@ namespace Controller.Matrix
             {
                 this.FlowDown(i);
             }
-            //Debug.Log("ReFlowDown");
-            ReCheckMatch();
+            StartCoroutine(ReCheckMatch());
         }
 
-        private void SwapMatrixElementModel(Vector2Int pos1, Vector2Int pos2)
+        private IEnumerator SwapMatrixElementModel(Vector2Int pos1, Vector2Int pos2, Vector2 posAnim)
         {
+            this.MatrixElementModelList[pos1.x, pos1.y].MatrixElementView.PlayMoveAnimation(posAnim);
+            yield return new WaitForSeconds(0.4f);
             MatrixElementModelList[pos1.x, pos1.y].SetMatch(true);
             MatrixElementModelList[pos2.x, pos2.y].SetType(MatrixElementModelList[pos1.x, pos1.y].MatrixElementType);
             MatrixElementModelList[pos2.x, pos2.y].SetMatch(false);
@@ -329,7 +339,7 @@ namespace Controller.Matrix
         }
 
         // Check Match
-        public bool CheckMatch(Vector2Int pos)
+        public int CheckMatch(Vector2Int pos)
         {
             bool CheckMatch = false;
             // Row
@@ -366,7 +376,7 @@ namespace Controller.Matrix
                 {
                     if (i != pos.y)
                     {
-                        MatrixElementModelList[pos.x, i].SetMatch(true);
+                        MatrixElementModelList[pos.x, i].SetMatch(true, true);
                     }
                 }
                 CheckMatch = true;
@@ -403,7 +413,7 @@ namespace Controller.Matrix
                 {
                     if (i != pos.x)
                     {
-                        MatrixElementModelList[i, pos.y].SetMatch(true);
+                        MatrixElementModelList[i, pos.y].SetMatch(true, true);
                     }
                 }
                 CheckMatch = true;
@@ -411,15 +421,25 @@ namespace Controller.Matrix
 
             if (CheckMatch)
             {
-                MatrixElementModelList[pos.x, pos.y].SetMatch(true);
+                MatrixElementModelList[pos.x, pos.y].SetMatch(true, true);
             }
-            //if (CheckMatch && (int)type == 2)
-            //{
-            //    SkillController.Instance.State = 2;
-            //    SkillController.Instance.ShowFlag();
-            //}
 
-            return CheckMatch;
+            int sum = (jColumn - iColumn + 1) + (jRow - iRow + 1) - 1;
+            int p = 0;
+            if (sum == 3 || sum == 4)
+            {
+                p = 1;
+            }
+            else if (sum >= 5)
+            {
+                p = 3;
+            }
+            if (CheckMatch)
+            {
+                QueueController.Instance.PlusCount(type, p);
+                return p;
+            }
+            else return -1;
         }
 
         // Draw Matrix 6x6
@@ -469,8 +489,14 @@ namespace Controller.Matrix
             }
         }
 
-        private void FlowDown(int y)
+        public void FlowDown(int y)
         {
+            StartCoroutine(DetailFlowDown(y));
+        }
+
+        private IEnumerator DetailFlowDown(int y)
+        {
+            yield return new WaitForSeconds(0.5f);
             int distance = 0;
             int start_space = -1;
             int end_space = -1;
@@ -498,8 +524,10 @@ namespace Controller.Matrix
                     v--;
                     if (v < 0) break;
                     if (!this.MatrixElementModelList[v, y].IsMatch) 
-                    { 
-                        SwapMatrixElementModel(new Vector2Int(v, y), new Vector2Int(v + distance, y));
+                    {
+                        Vector2 pos = new Vector2(-1, -1);
+                        pos = this.MatrixElementModelList[v + distance, y].MatrixElementView.GetComponent<RectTransform>().anchoredPosition;
+                        StartCoroutine(SwapMatrixElementModel(new Vector2Int(v, y), new Vector2Int(v + distance, y), pos));
                     }
                 }
             }
