@@ -1,7 +1,9 @@
 namespace View.Skill.Bullet
 {
     using Controller.Enemy;
+    using Controller.Queue;
     using Controller.Skill;
+    using Cotroller;
     using DG.Tweening;
     using System.Collections;
     using UnityEngine;
@@ -29,7 +31,7 @@ namespace View.Skill.Bullet
 
         public IEnumerator GetEnemyAncho(int index)
         {
-            yield return new WaitForSeconds(0.95f);
+            yield return new WaitForSeconds(0.55f);
             pos2 = EnemyController.Instance.LstEnemy[index].EnemyView.GetComponentInChildren<RectTransform>().anchoredPosition;
             pos2.x = pos2.x + 170f + 884f - 120f;
             pos2.y = pos2.y + 168f - 120f - 38f;
@@ -38,7 +40,14 @@ namespace View.Skill.Bullet
         public void KillEnemy(int index)
         {
             RePosBullet();
+            QueueController.Instance.QueueElementModelList[0].QueueElementView.EndSkill();
+            EnemyController.Instance.LstEnemy[index].EnemyView.PauseMove();
             EnemyController.Instance.LstEnemy[index].EnemyView.SetActive(false);
+            if (index == EnemyController.Instance.EnemySize - 1)
+            {
+                CoreGamePlayController.Instance.State = 1;
+                Debug.Log("Win Game");
+            }
         }
 
         private void RePosBullet()
@@ -56,7 +65,7 @@ namespace View.Skill.Bullet
             direction = pos1;
             float angle1 = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
             this._rectTransform.DOLocalRotate(new Vector3(0, 0, -angle1), 0.2f).SetEase(Ease.Linear);
-            this._rectTransform.DOLocalMove(pos1, 1f).SetEase(Ease.Linear).OnComplete(() => 
+            this._rectTransform.DOLocalMove(pos1, 0.6f).SetEase(Ease.Linear).OnComplete(() => 
             {
                 direction = pos2 - pos1;
                 float angle2 = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
@@ -64,7 +73,7 @@ namespace View.Skill.Bullet
 
                 this._rectTransform.DOLocalRotate(new Vector3(0, 0, angle2), 0.1f).SetEase(Ease.Linear).OnComplete(() =>
                 {
-                    this._rectTransform.DOLocalMove(pos2, 0.4f).SetEase(Ease.Linear).OnComplete(() => 
+                    this._rectTransform.DOLocalMove(pos2, 0.3f).SetEase(Ease.Linear).OnComplete(() => 
                     {
                         KillEnemy(index);
                     });

@@ -6,23 +6,24 @@ namespace Controller.Skill
     using Model.Skill.Flag;
     using System.Collections;
     using System.Collections.Generic;
-    using Unity.VisualScripting;
     using UnityEngine;
     using View.Skill.Bullet;
     using View.Skill.Flag;
     using CustomUtils.Vukhoa;
+    using Controller.Queue;
 
     public class SkillController : SingletonMono<SkillController>
     {
         [Header(" Bullet Information ")]
         public BulletView BulletPrefab;
         public RectTransform BulletParentPointPrefab;
+        
         private RectTransform _bulletParentPoint;
 
         [Header(" Shoot ")]
         public RectTransform PointPrefab;
+        
         private RectTransform _point;
-
         private List<BulletModel> _lstBullet;
         private int _bulletSize = 10;
 
@@ -35,24 +36,31 @@ namespace Controller.Skill
 
         [Header(" Fire Information ")]
         public FireView FirePrefab;
-        public RectTransform FireStormParentPrefab;
+        public RectTransform FSParentAllPrefab;
         public RectTransform FireParentPrefab;
         public RectTransform FireMoveParentPrefab;
         public RectTransform FireMovePrefab;
 
+        public RectTransform FSParentAll;
+        public List<RectTransform> LstFireMove;
+
+        private List<RectTransform> _lstFireParent;
+        private List<FirestormClass> _lstFireStorm;
+        private int _sizeFire = 9;
+        private int _sizeFireStorm = 20;
+
         [Header(" Start Game ")]
+        public RectTransform ParentAll;
+        public RectTransform StartSkillBulletPrefab;
+        public RectTransform StartSkillFlagPrefab;
+        public RectTransform StartSkillFireStormPrefab;
         public RectTransform StartSkillBullet;
         public RectTransform StartSkillFlag;
         public RectTransform StartSkillFireStorm;
 
-        public List<RectTransform> LstFireMove;
-        private List<RectTransform> _lstFireParent;
-        private List<FirestormClass> _lstFireStorm;
-
+        [Header(" State ")]
         public int State = 0;
         private int _curEnemyIndex = -1;
-        private int _sizeFire = 9;
-        private int _sizeFireStorm = 20;
 
         public class FirestormClass
         {
@@ -62,15 +70,23 @@ namespace Controller.Skill
 
         private void Start()
         {
-            this.SpawnPoint();
+            this.SpawnStartPoint();
+            this.SpawnBulletPoint();
             this.SpawnBullet();
             this.SpawnFireParents();
             this.SpawnFireMoves();
             this.SpawnFireStorms();
         }
 
-        private void SpawnPoint()
+        private void SpawnStartPoint()
         {
+            this.StartSkillBullet = Instantiate(this.StartSkillBulletPrefab, this.ParentAll);
+            this.StartSkillFlag = Instantiate(this.StartSkillFlagPrefab, this.ParentAll);
+            this.StartSkillFireStorm = Instantiate(this.StartSkillFireStormPrefab, this.ParentAll);
+        }
+        private void SpawnBulletPoint()
+        {
+
             this._bulletParentPoint = Instantiate(this.BulletParentPointPrefab, this.transform);
             this._point = Instantiate(this.PointPrefab, this.transform);
         }
@@ -93,17 +109,16 @@ namespace Controller.Skill
 
         public void Shooting(int index)
         {
-            StartCoroutine(this.ShootBullets(index));
+            this.ShootBullets(index);
         }
 
-        private IEnumerator ShootBullets(int index)
+        private void ShootBullets(int index)
         {
             for (int i = 0; i < this._bulletSize; ++i)
             {   
                 if (!this._lstBullet[i].IsUsed)
                 {
                     this._lstBullet[i].IsUsed = true;
-                    yield return new WaitForSeconds(0.4f);
                     this._lstBullet[i].BulletView.SetActive(true);
                     this._lstBullet[i].BulletView.Shooting(
                         this._point.anchoredPosition,
@@ -156,15 +171,14 @@ namespace Controller.Skill
         {
             int indexEnemy = EnemyController.Instance.GetIndex();
             int indexFlag = this.GetIndexFlag(indexEnemy);
+            this._curEnemyIndex = indexEnemy;
             this._lstFlag[indexFlag].FlagView.SetActive(true);
             
             EnemyController.Instance.LstEnemy[indexEnemy].EnemyView.PauseMove();
 
             Vector3 showPoint = EnemyController.Instance.LstEnemy[indexEnemy].EnemyView.GetComponent<RectTransform>().transform.position;
             this._lstFlag[indexFlag].FlagView.SetPosition(showPoint);
-            this._lstFlag[indexFlag].FlagView.ShowFlag();
-            this._curEnemyIndex = indexEnemy;
-            EnemyController.Instance.LstEnemy[this._curEnemyIndex].EnemyView.gameObject.tag = "PlayerControlled";
+            this._lstFlag[indexFlag].FlagView.ShowFlag(this._curEnemyIndex);
         }
 
         public void KillFlag(int indexEnemy)
@@ -185,10 +199,11 @@ namespace Controller.Skill
         // ---------------------------------------------FireStorm--------------------------------------------//
         public void SpawnFireParents()
         {
+            this.FSParentAll = Instantiate(this.FSParentAllPrefab, this.transform);
             this._lstFireParent = new List<RectTransform>();
             for (int i = 0; i < this._sizeFireStorm; ++i)
             {
-                RectTransform fireParent = Instantiate(this.FireParentPrefab, this.FireStormParentPrefab);
+                RectTransform fireParent = Instantiate(this.FireParentPrefab, this.FSParentAll);
                 this._lstFireParent.Add(fireParent);
             }
         }
@@ -196,7 +211,7 @@ namespace Controller.Skill
         public void SpawnFireMoves()
         {
             this.LstFireMove = new List<RectTransform>();
-            RectTransform fiveMoveParent = Instantiate(this.FireMoveParentPrefab, this.FireStormParentPrefab);
+            RectTransform fiveMoveParent = Instantiate(this.FireMoveParentPrefab, this.FSParentAll);
             for (int i = 0; i < this._sizeFire; ++i)
             {
                 RectTransform fireMove = Instantiate(this.FireMovePrefab, fiveMoveParent);
@@ -255,17 +270,28 @@ namespace Controller.Skill
 
         public IEnumerator FirestormAttacking(int index)
         {
+            float total = 0f;
             if (index != -1)
             {
-                //Debug.Log("Firestorm attack");
                 this.LstFireMove.ShuffleList();
                 for (int i = 0; i < this._sizeFire; ++i)
                 {
                     this._lstFireStorm[index].Firestorm[i].FireView.gameObject.SetActive(true);
                     this._lstFireStorm[index].Firestorm[i].FireView.FireFalling(i);
-                    yield return new WaitForSeconds(Random.Range(0.2f, 0.5f));
+                    float time = 0f;
+                    if (total < 2f && i == this._sizeFire - 1)
+                    {
+                        time = 2f - total;
+                    }
+                    else
+                    {
+                        time = Random.Range(0.1f, 0.22f);
+                        total += time;
+                    }
+                    yield return new WaitForSeconds(time);
                 }
             }
+            QueueController.Instance.QueueElementModelList[2].QueueElementView.EndSkill();
         }
     }
 }

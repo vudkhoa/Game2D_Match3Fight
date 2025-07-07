@@ -17,7 +17,7 @@ MonoBehaviour:
     Direction: 1
     Width: 1080
     Height: 288
-    Spacing: 5
+    Spacing: 30
     PaddingHon: 140
     PaddingVer: 25
   InformationElement:

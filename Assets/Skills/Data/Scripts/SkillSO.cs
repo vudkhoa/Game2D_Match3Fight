@@ -48,6 +48,7 @@ namespace CustomData
         public SkillIcon SkillIcon;
         public SkillBackground SkillBackground;
         public float cooldownTime;
+        public float castTime;
     }
 
     [CreateAssetMenu(menuName = "SkillSO", fileName = "SkillSO")]
