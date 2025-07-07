@@ -1,5 +1,3 @@
-<a href="[https://github.com/khoavudinh](https://github.com/vudkhoa)">
-  <img src="https://github.com/khoavudinh.png" width="50" />
-</a>
+## Top contributors
 
-[all-contributors](https://github.com/vudkhoa/Game2D_SortMergeFight/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=vudkhoa/Game2D_SortMergeFight)](https://github.com/vudkhoa/Game2D_SortMergeFight/graphs/contributors)
