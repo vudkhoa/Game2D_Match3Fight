@@ -10,6 +10,7 @@ namespace Model.Queue {
         public int Count = 0;
         public MatrixElementType Type;
         private float _cooldownTime = 0f;
+        private float _castTime = 0f;
 
         public void SetView(QueueElementView queueElementView)
         {
@@ -29,9 +30,8 @@ namespace Model.Queue {
 
         public bool ReduceCount(int count)
         {
-            if (this.Count > 0 && !this.QueueElementView.OnCooldown)
+            if (this.Count > 0 && !this.QueueElementView.OnCooldown && !this.QueueElementView.IsGlow)
             {
-                this.QueueElementView.StartCooldown();
                 this.Count -= count;
                 this.QueueElementView.SetCount(this.Count);
                 return true;
@@ -44,7 +44,8 @@ namespace Model.Queue {
             this.Type = type;
             this.QueueElementView.SetType(type);
             this._cooldownTime = DataManager.Instance.SkillData.Skills[(int)type - 1].cooldownTime;
-            this.QueueElementView.SetCooldownTime(this._cooldownTime);
+            this._castTime = DataManager.Instance.SkillData.Skills[(int)type - 1].castTime;
+            this.QueueElementView.SetTimes(this._cooldownTime, this._castTime);
         }
     }
 }

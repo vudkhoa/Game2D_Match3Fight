@@ -30,9 +30,7 @@ namespace View.Matrix
             MatrixController.Instance.CurrentPos = this._pos;
         }
 
-        public void OnPointerUp(PointerEventData eventData)
-        {
-        }
+        public void OnPointerUp(PointerEventData eventData) { }
         
         public void PlayMoveAnimation(Vector2 pos)
         {
@@ -49,7 +47,7 @@ namespace View.Matrix
         {
             Sequence seq = DOTween.Sequence();
             seq.Append(gameObject.transform.DOScale(1.2f, 0.1f));
-            seq.Append(gameObject.transform.DOScale(0.8f, 0.1f)); 
+            seq.Append(gameObject.transform.DOScale(0.8f, 0.1f));
             seq.Append(gameObject.transform.DOScale(0f, 0.2f));
             seq.OnComplete(() =>
             {
@@ -57,6 +55,19 @@ namespace View.Matrix
                 gameObject.SetActive(false);
             });
             seq.Play();
+        }
+
+        public void PlaySwapAnimation(Vector2 pos)
+        {
+            RectTransform rect = gameObject.GetComponent<RectTransform>();
+            Vector2 oldPos = rect.anchoredPosition;
+
+            rect.DOLocalMove(pos, 0.4f).SetEase(Ease.InOutQuad).OnComplete(() => 
+            {
+                this.gameObject.SetActive(false);
+                rect.anchoredPosition = oldPos;
+                this.gameObject.SetActive(true);
+            });
         }
     }
 }

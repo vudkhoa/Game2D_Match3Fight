@@ -14,23 +14,25 @@ namespace Controller.Enemy
         public EnemyView EnemyPrefab;
         public RectTransform EnemyParentPrefab;
         public RectTransform EnemyMovePointPrefab;
+        public int EnemySize { get; private set; }
+        public int CountEnemyDead = 0;
 
         private RectTransform _enemyParent;
         private RectTransform _enemyMovePoint;
 
         public List<EnemyModel> LstEnemy;
-        private int _enemySize = 10;
         private void Start()
         {
             SkillController.Instance.SpawnFlag();
             this.SpawnPoints();
-            this.SpawnEnemy(this._enemySize);
+            this.SpawnEnemy(this.EnemySize);
             this.MoveEnemy(this._enemyMovePoint.anchoredPosition);
         }
 
         private void SpawnEnemy(int enemyCount)
         {
-            for (int i = 0; i < this._enemySize; ++i)
+            this.EnemySize = 100;
+            for (int i = 0; i < this.EnemySize; ++i)
             {
                 EnemyView enemyGO = Instantiate(this.EnemyPrefab, this._enemyParent);
                 EnemyModel enemyModel = new EnemyModel();
@@ -62,7 +64,7 @@ namespace Controller.Enemy
             {
                 enemy.EnemyView.SetActive(true);
                 enemy.EnemyView.Move(playerPos);
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSeconds(Random.Range(0f, 5f));
             }
         }
 
@@ -106,6 +108,7 @@ namespace Controller.Enemy
 
         public void KillEnemy(int index)
         {
+            this.CountEnemyDead++;
             this.LstEnemy[index].IsDead = true;
             this.LstEnemy[index].EnemyView.SetActive(false);
             this.LstEnemy[index].EnemyView.PauseMove();

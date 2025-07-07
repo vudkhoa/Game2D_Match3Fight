@@ -1,12 +1,12 @@
 ﻿namespace Controller.Matrix
 {
     using Controller.Queue;
+    using Cotroller;
     using CustomData;
     using CustomUtils;
     using Model.Matrix;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Drawing;
     using UnityEngine;
     using View.Matrix;
 
@@ -32,11 +32,11 @@
 
         private Vector3 startPos;
         private Vector3 endPos;
+        private bool CheckMatch = false; 
 
         private void Start()
         {
             this.CreateMatrix();
-            this.CurrentPos = new Vector2Int(-1, -1);
         }
 
         private void Update()
@@ -65,35 +65,34 @@
                 if (!MatrixElementModelList[this.CurrentPos.x, this.CurrentPos.y].IsMatch
                     && !MatrixElementModelList[newPos.x, newPos.y].IsMatch)
                 {
-                    this.MatrixElementSwap(this.CurrentPos, newPos);
+                    Debug.Log("Swap: " + this.CurrentPos + " - " + newPos);
+                    StartCoroutine(this.MatrixElementSwap(this.CurrentPos, newPos));
                     MatrixElementType currentType = MatrixElementModelList[this.CurrentPos.x, this.CurrentPos.y].MatrixElementType;
                     MatrixElementType newType = MatrixElementModelList[newPos.x, newPos.y].MatrixElementType;
-                    bool checkMatch = false;
-                    int point = 0;
-                    point = this.CheckMatch(this.CurrentPos);
-                    if (point != -1)
-                    {
-                        //QueueController.Instance.PlusCount(currentType, point);
-                        checkMatch = true;
-                    }
-
-                    point = this.CheckMatch(newPos);
-                    if (point != -1)
-                    {
-                        //QueueController.Instance.PlusCount(newType, point);
-                        checkMatch = true; 
-                    }
-
-                    if (!checkMatch)
-                    {
-                        this.MatrixElementSwap(this.CurrentPos, newPos);
-                    }
-                    else
-                    {
-                        ReFlowDown();
-                    }
+                    CheckMatch = false;
+                    StartCoroutine(this.CheckingForSwap(this.CurrentPos, newPos));
                 }
                 this.ResetCurrentPos();
+            }
+        }
+
+        private IEnumerator CheckingForSwap(Vector2Int curPos, Vector2Int newPos)
+        {
+            yield return new WaitForSeconds(0.45f);
+            bool tmpCheck = false;
+            this.CheckingMatch(curPos);
+            tmpCheck = CheckMatch;
+            this.CheckingMatch(newPos);
+            tmpCheck = CheckMatch || tmpCheck;
+            yield return new WaitForSeconds(0.05f);
+            if (!tmpCheck)
+            {
+                Debug.Log("Not Match");
+                StartCoroutine(this.MatrixElementSwap(curPos, newPos));
+            }
+            else
+            {
+                ReFlowDown();
             }
         }
 
@@ -153,11 +152,11 @@
                         }
                     }
                 }
-                StartCoroutine(ReCheckMatch());
+                StartCoroutine(ReCheckingMatch());
             }
             else
             {
-                Debug.Log("Lose!");
+                CoreGamePlayController.Instance.StartPhase2();
             }
         }
 
@@ -272,6 +271,82 @@
                                 return true;
                             }
                         }
+
+
+                        posMatch.x = i;
+                        posMatch.y = j + 3;
+                        if (
+                             CheckPosInvalid(posMatch) &&
+                             this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type &&
+                             (j + 1 >= 0 && j + 1 < MatrixSize.y) &&
+                             (j + 2 >= 0 && j + 2 < MatrixSize.y) &&
+                             !this.MatrixElementModelList[i, j + 1].IsMatch &&
+                             !this.MatrixElementModelList[i, j + 2].IsMatch &&
+                             this.MatrixElementModelList[i, j + 2].MatrixElementType == type
+                        )
+                        {
+                            return true;
+                        }
+
+                        posMatch.x = i + 3;
+                        posMatch.y = j;
+                        if (
+                             CheckPosInvalid(posMatch) &&
+                             this.MatrixElementModelList[posMatch.x, posMatch.y].MatrixElementType == type &&
+                             (i + 1 >= 0 && i + 1 < MatrixSize.x) &&
+                             (i + 2 >= 0 && i + 2 < MatrixSize.x) &&
+                             !this.MatrixElementModelList[i + 1, j].IsMatch &&
+                             !this.MatrixElementModelList[i + 2, j].IsMatch &&
+                             this.MatrixElementModelList[i + 2, j].MatrixElementType == type
+                        )
+                        {
+                            return true;
+                        }
+
+                        if (
+                            CheckPosInvalid(new Vector2Int(i + 1, j + 1)) &&
+                            CheckPosInvalid(new Vector2Int(i + 1, j + 2)) &&
+                            CheckPosInvalid(new Vector2Int(i + 1, j)) &&
+                            this.MatrixElementModelList[i + 1, j + 1].MatrixElementType == type &&
+                            this.MatrixElementModelList[i + 1, j + 2].MatrixElementType == type
+                        )
+                        {
+                            return true;
+                        }
+
+                        if (
+                            CheckPosInvalid(new Vector2Int(i - 1, j + 1)) &&
+                            CheckPosInvalid(new Vector2Int(i - 1, j + 2)) &&
+                            CheckPosInvalid(new Vector2Int(i - 1, j)) &&
+                            this.MatrixElementModelList[i - 1, j + 1].MatrixElementType == type &&
+                            this.MatrixElementModelList[i - 1, j + 2].MatrixElementType == type
+                        )
+                        {
+                            return true;
+                        }
+
+                        if (
+                            CheckPosInvalid(new Vector2Int(i + 1, j - 1)) &&
+                            CheckPosInvalid(new Vector2Int(i + 2, j - 1)) &&
+                            CheckPosInvalid(new Vector2Int(i, j - 1)) &&
+                            this.MatrixElementModelList[i + 1, j - 1].MatrixElementType == type &&
+                            this.MatrixElementModelList[i + 2, j - 1].MatrixElementType == type
+                        )
+                        {
+                            return true;
+                        }
+
+                        if (
+                            CheckPosInvalid(new Vector2Int(i + 1, j + 1)) &&
+                            CheckPosInvalid(new Vector2Int(i + 2, j + 1)) &&
+                            CheckPosInvalid(new Vector2Int(i, j + 1)) &&
+                            this.MatrixElementModelList[i + 1, j + 1].MatrixElementType == type &&
+                            this.MatrixElementModelList[i + 2, j + 1].MatrixElementType == type
+                        )
+                        {
+                            return true;
+                        }
+
                     }
                 }
             }
@@ -279,19 +354,19 @@
             return false;
         }
 
-        private IEnumerator ReCheckMatch()
+        private IEnumerator ReCheckingMatch()
         {
             yield return new WaitForSeconds(1.05f);
             bool isMatch = false;
-            int point = 0;
             for (int i = 0; i < MatrixSize.x; ++i)
             {
                 for (int j = 0; j < MatrixSize.y; ++j)
                 {
                     if (!this.MatrixElementModelList[i, j].IsMatch)
                     {
-                        point = CheckMatch(new Vector2Int(i, j));
-                        isMatch = (point != -1) || isMatch;
+                        CheckMatch = false;
+                        CheckingMatch(new Vector2Int(i, j));
+                        isMatch = CheckMatch || isMatch;
                     }
                 }
             }
@@ -303,6 +378,7 @@
             {
                 if (!this.CheckMap())
                 {
+                    Debug.Log("Not CheckMap");
                     StartCoroutine(this.ShuffleMap());
                 }
             }
@@ -314,7 +390,7 @@
             {
                 this.FlowDown(i);
             }
-            StartCoroutine(ReCheckMatch());
+            StartCoroutine(ReCheckingMatch());
         }
 
         private IEnumerator SwapMatrixElementModel(Vector2Int pos1, Vector2Int pos2, Vector2 posAnim)
@@ -331,17 +407,23 @@
             this.CurrentPos = new Vector2Int(-1, -1);
         }
 
-        private void MatrixElementSwap(Vector2Int from, Vector2Int to)
+        private IEnumerator MatrixElementSwap(Vector2Int from, Vector2Int to)
         {
+            Debug.Log("Swap: " + from + " - " + to);
+            Vector2 toPos = MatrixElementModelList[to.x, to.y].MatrixElementView.GetComponent<RectTransform>().anchoredPosition;
+            Vector2 fromPos = MatrixElementModelList[from.x, from.y].MatrixElementView.GetComponent<RectTransform>().anchoredPosition;
+            MatrixElementModelList[from.x, from.y].MatrixElementView.PlaySwapAnimation(toPos);
+            MatrixElementModelList[to.x, to.y].MatrixElementView.PlaySwapAnimation(fromPos);
+            yield return new WaitForSeconds(0.4f);
             MatrixElementType tmpType = MatrixElementModelList[from.x, from.y].MatrixElementType;
             MatrixElementModelList[from.x, from.y].SetType(MatrixElementModelList[to.x, to.y].MatrixElementType);
             MatrixElementModelList[to.x, to.y].SetType(tmpType);
         }
 
         // Check Match
-        public int CheckMatch(Vector2Int pos)
+        public void CheckingMatch(Vector2Int pos)
         {
-            bool CheckMatch = false;
+            CheckMatch = false;
             // Row
             // Get Data
             MatrixElementType type = MatrixElementModelList[pos.x, pos.y].MatrixElementType;
@@ -372,6 +454,7 @@
             // Delete
             if (jRow - iRow + 1 >= 3 && iRow >= 0 && jRow < MatrixSize.x)
             {
+                CheckMatch = true;
                 for (int i = iRow; i <= jRow; ++i)
                 {
                     if (i != pos.y)
@@ -379,7 +462,6 @@
                         MatrixElementModelList[pos.x, i].SetMatch(true, true);
                     }
                 }
-                CheckMatch = true;
             }
 
             // Column
@@ -409,6 +491,7 @@
 
             if (jColumn - iColumn + 1 >= 3 && iColumn >= 0 && jColumn < MatrixSize.y)
             {
+                CheckMatch = true;
                 for (int i = iColumn; i <= jColumn; ++i)
                 {
                     if (i != pos.x)
@@ -416,7 +499,6 @@
                         MatrixElementModelList[i, pos.y].SetMatch(true, true);
                     }
                 }
-                CheckMatch = true;
             }
 
             if (CheckMatch)
@@ -434,17 +516,19 @@
             {
                 p = 3;
             }
+
             if (CheckMatch)
             {
                 QueueController.Instance.PlusCount(type, p);
-                return p;
             }
-            else return -1;
         }
 
         // Draw Matrix 6x6
         private void CreateMatrix()
         {
+            // Init CurrentPos
+            this.CurrentPos = new Vector2Int(-1, -1);
+
             // Get Data Matrix from DataManager
             MatrixSize = DataManager.Instance.MatrixData.InformationMatrix.Size;
             int directionX = DataManager.Instance.MatrixData.InformationMatrix.Direction.x;

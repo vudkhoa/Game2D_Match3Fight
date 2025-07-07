@@ -1,5 +1,7 @@
-namespace View.Queue {
+﻿namespace View.Queue
+{
     using CustomData;
+    using DG.Tweening;
     using System.Collections;
     using TMPro;
     using UnityEngine;
@@ -8,12 +10,18 @@ namespace View.Queue {
     public class QueueElementView : MonoBehaviour
     {
         [Header("Element")]
+        public Image GlowImage;
         public TextMeshProUGUI Count;
         public Image ImageBackground;
         public Image ImageCooldown;
         public Image ImageSkill;
         public bool OnCooldown = false;
+        public bool IsGlow = false;
         private float _cooldownTime = 0f;
+        private float _castTime = 0f;
+        private Vector3 upPos = new Vector3(0f, 50f, 0f);
+        private float upScale = 1.05f;
+        private Coroutine glowCoroutine;
 
         private void Start()
         {
@@ -26,6 +34,11 @@ namespace View.Queue {
             if (this.OnCooldown)
             {
                 this.OnCoooldown();
+            }
+
+            if (this.IsGlow)
+            {
+                this.OnGlowAnimation();
             }
         }
 
@@ -68,9 +81,61 @@ namespace View.Queue {
             this.Count.text = count.ToString();
         }
 
-        public void SetCooldownTime(float cooldownTime)
+        public void SetTimes(float cooldownTime, float castTime)
         {
             this._cooldownTime = cooldownTime;
+            this._castTime = castTime;
+        }
+
+        public void StartSkill()
+        {
+            RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+
+            rectTransform.DOMove(rectTransform.transform.position + upPos, 0.2f).SetEase(Ease.OutQuad);
+            rectTransform.DOScale(rectTransform.localScale * upScale, 0.2f).SetEase(Ease.OutSine);
+        }
+
+        public void EndSkill()
+        {
+            RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+            rectTransform.DOMove(rectTransform.transform.position - upPos, 0.2f).SetEase(Ease.InQuad);
+            rectTransform.DOScale(rectTransform.localScale / upScale, 0.2f).SetEase(Ease.InSine).OnComplete(() => 
+            {
+                this.StartCooldown();
+                this.IsGlow = false;
+            });
+        }
+
+
+        private void OnGlowAnimation()
+        {
+            this.GlowImage.fillAmount -= 1 / this._castTime * Time.deltaTime;
+            if (this.GlowImage.fillAmount <= 0f)
+            {
+                this.GlowImage.fillAmount = 0f;
+            }
+        }
+
+        public void StartGlow()
+        {
+            if (this.IsGlow)
+            {
+                if (glowCoroutine != null)
+                {
+                    StopCoroutine(glowCoroutine);
+                }
+                this.GlowImage.fillAmount = 1f;
+            }
+            glowCoroutine = StartCoroutine(this.DetailGlow());
+        }
+
+        private IEnumerator DetailGlow()
+        {
+            this.IsGlow = true;
+            this.GlowImage.gameObject.SetActive(true);
+            this.GlowImage.fillAmount = 1f;
+            yield return new WaitForSeconds(this._castTime);
+            this.ImageCooldown.gameObject.SetActive(false);
         }
     }
 }
