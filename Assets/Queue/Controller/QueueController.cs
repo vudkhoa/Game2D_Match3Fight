@@ -87,7 +87,7 @@ namespace Controller.Queue
                 SkillController.Instance.State = 2;
                 return true;
             }
-            else if (this.QueueElementModelList[2].Count > 0 && !this.QueueElementModelList[1].QueueElementView.IsGlow && !this.QueueElementModelList[1].QueueElementView.OnCooldown)
+            else if (this.QueueElementModelList[2].Count > 0 && !this.QueueElementModelList[2].QueueElementView.IsGlow && !this.QueueElementModelList[2].QueueElementView.OnCooldown)
             {
                 SkillController.Instance.State = 3;
                 return true;

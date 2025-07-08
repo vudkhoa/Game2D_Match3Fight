@@ -151,8 +151,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BulletPrefab: {fileID: 9010939092326075177, guid: b0e607878446f6748882a445e58429a9, type: 3}
+  SmokePrefab: {fileID: 1743449866366111955, guid: 5042273ce349b9a4a8e747d592bd5a72, type: 3}
   BulletParentPointPrefab: {fileID: 8196909215013905413, guid: 4904e73222ffe70468f6ea30dc6d9178, type: 3}
   PointPrefab: {fileID: 8916608409893685867, guid: 3fc6daf0ed1f7ae46a6cd713819dbde6, type: 3}
+  LstSmoke: []
   FlagPrefab: {fileID: 776415332997693566, guid: bd2de4fe0305fbe44af61febfb528ec7, type: 3}
   FlagParentEnemy: {fileID: 7037985163499412503}
   FirePrefab: {fileID: 2641125169450072584, guid: d2068bc37aeb9bd4c879ee8cb1e0a31a, type: 3}

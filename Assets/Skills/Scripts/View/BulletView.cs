@@ -40,9 +40,8 @@ namespace View.Skill.Bullet
         public void KillEnemy(int index)
         {
             RePosBullet();
+            EnemyController.Instance.KillEnemy(index, 1);
             QueueController.Instance.QueueElementModelList[0].QueueElementView.EndSkill();
-            EnemyController.Instance.LstEnemy[index].EnemyView.PauseMove();
-            EnemyController.Instance.LstEnemy[index].EnemyView.SetActive(false);
             if (index == EnemyController.Instance.EnemySize - 1)
             {
                 CoreGamePlayController.Instance.State = 1;
@@ -79,7 +78,6 @@ namespace View.Skill.Bullet
                     });
                 });
             });
-
         }
     }
 }

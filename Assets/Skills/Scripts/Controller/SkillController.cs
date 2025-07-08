@@ -3,6 +3,7 @@ namespace Controller.Skill
     using Controller.Enemy;
     using CustomUtils;
     using Model.Skill.Bullet;
+    using View.Skill.Fire;
     using Model.Skill.Flag;
     using System.Collections;
     using System.Collections.Generic;

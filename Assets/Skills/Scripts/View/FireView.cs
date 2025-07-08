@@ -1,7 +1,9 @@
-﻿namespace View.Skill.Bullet
+﻿namespace View.Skill.Fire
 {
     using Controller.Skill;
     using DG.Tweening;
+    using System.Collections;
+    using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.UI;
 
@@ -9,6 +11,7 @@
     {
         public Image FireImg;
         public RectTransform RectTransform;
+        public List<Image> FireExplosionImages;
 
         public void SetPosition(Vector2 position)
         {
@@ -23,7 +26,10 @@
             Sequence fallSequence = DOTween.Sequence();
             fallSequence.Append(
                 this.RectTransform.DOMove(newPos, duration)
-                .SetEase(fallingEase)
+                .SetEase(fallingEase).OnComplete(() => 
+                {
+                    StartCoroutine(this.PlayFireExplosion());
+                })
             );
             float rotationAmount = Random.Range(-30f, 30f);
             fallSequence.Join(
@@ -47,9 +53,30 @@
             });
 
             // Bắt đầu sequence
-            fallSequence.Play().OnComplete(() => { 
-                gameObject.SetActive(false);
-            });
+            fallSequence.Play();
+        }
+
+        public void PauseFall()
+        {
+            DOTween.Kill(this.gameObject);
+            StartCoroutine(PlayFireExplosion());
+        }
+
+        public IEnumerator PlayFireExplosion()
+        {
+            foreach (Image fireExplosion in FireExplosionImages)
+            {
+                fireExplosion.gameObject.SetActive(true);
+                StartCoroutine(this.EndFireExplosion(fireExplosion));
+            }
+            yield return new WaitForSeconds(0.3f);
+            this.gameObject.SetActive(false);
+        }
+
+        public IEnumerator EndFireExplosion(Image fireExplosion)
+        {
+            yield return new WaitForSeconds(0.25f);
+            fireExplosion.gameObject.SetActive(false);
         }
     }
 }
