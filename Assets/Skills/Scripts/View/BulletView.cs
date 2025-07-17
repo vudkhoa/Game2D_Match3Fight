@@ -32,9 +32,7 @@ namespace View.Skill.Bullet
         public IEnumerator GetEnemyAncho(int index)
         {
             yield return new WaitForSeconds(0.55f);
-            pos2 = EnemyController.Instance.LstEnemy[index].EnemyView.GetComponentInChildren<RectTransform>().anchoredPosition;
-            pos2.x = pos2.x + 170f + 884f - 120f;
-            pos2.y = pos2.y + 168f - 120f - 38f;
+            pos2 = EnemyController.Instance.LstEnemy[index].EnemyView.GetComponent<RectTransform>().transform.position;
         }
 
         public void KillEnemy(int index)
@@ -63,19 +61,17 @@ namespace View.Skill.Bullet
             Vector2 direction;
             direction = pos1;
             float angle1 = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
-            this._rectTransform.DOLocalRotate(new Vector3(0, 0, -angle1), 0.2f).SetEase(Ease.Linear);
-            this._rectTransform.DOLocalMove(pos1, 0.6f).SetEase(Ease.Linear).OnComplete(() => 
+            this._rectTransform.DOLocalRotate(new Vector3(0, 0, -45), 0.2f).SetEase(Ease.Linear);
+            this._rectTransform.DOMove(pos1, 0.6f).SetEase(Ease.Linear).OnComplete(() => 
             {
                 direction = pos2 - pos1;
                 float angle2 = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
                 angle2 = -angle2;
 
-                this._rectTransform.DOLocalRotate(new Vector3(0, 0, angle2), 0.1f).SetEase(Ease.Linear).OnComplete(() =>
+                this._rectTransform.DOLocalRotate(new Vector3(0, 0, -95), 0.2f).SetEase(Ease.Linear);
+                this._rectTransform.DOMove(pos2, 0.3f).SetEase(Ease.Linear).OnComplete(() => 
                 {
-                    this._rectTransform.DOLocalMove(pos2, 0.3f).SetEase(Ease.Linear).OnComplete(() => 
-                    {
-                        KillEnemy(index);
-                    });
+                    KillEnemy(index);
                 });
             });
         }

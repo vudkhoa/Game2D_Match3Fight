@@ -16,6 +16,7 @@
 
         public Image BgFight;
         public Image BgAll;
+        public Image BgAll2;
 
         private GameObject _matrixBlock;
         private GameObject _fightBlock;
@@ -38,6 +39,7 @@
         private void SpawnBackground()
         {
             Instantiate(this.BgAll, this.transform);
+            Instantiate(this.BgAll2, this.transform);
             Instantiate(this.BgFight, this.transform);
         }
 
