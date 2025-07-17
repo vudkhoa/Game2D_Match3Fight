@@ -1,6 +1,6 @@
 namespace Model.Skill.Flag
 {
-    using View.Skill.Bullet;
+    using View.Skill.Fire;
 
     public class FireModel
     {

@@ -106,12 +106,27 @@ namespace Controller.Enemy
             return false;
         }
 
-        public void KillEnemy(int index)
+        // anim = 0: Not Use Animation
+        // anim = 1: Use Vanish Animation
+        // anim = 2: Use Explosion Animation
+        public void KillEnemy(int index, int anim = 0)
         {
             this.CountEnemyDead++;
             this.LstEnemy[index].IsDead = true;
-            this.LstEnemy[index].EnemyView.SetActive(false);
-            this.LstEnemy[index].EnemyView.PauseMove();
+            if (anim == 1)
+            {
+                StartCoroutine(this.LstEnemy[index].EnemyView.PlayVanishAnim());
+            }
+            else if (anim == 2)
+            {
+                StartCoroutine(this.LstEnemy[index].EnemyView.PlayExplosionAnim());
+            }
+            else
+            {
+                this.LstEnemy[index].EnemyView.SetActive(false);
+                this.LstEnemy[index].EnemyView.PauseMove();
+            }
+                
         }
     }
 }

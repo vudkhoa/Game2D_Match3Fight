@@ -6,6 +6,7 @@ namespace Controller.Queue
     using Cotroller;
     using CustomData;
     using CustomUtils;
+    using Manager;
     using Model.Queue;
     using UnityEngine;
     using View.Queue;
@@ -87,7 +88,7 @@ namespace Controller.Queue
                 SkillController.Instance.State = 2;
                 return true;
             }
-            else if (this.QueueElementModelList[2].Count > 0 && !this.QueueElementModelList[1].QueueElementView.IsGlow && !this.QueueElementModelList[1].QueueElementView.OnCooldown)
+            else if (this.QueueElementModelList[2].Count > 0 && !this.QueueElementModelList[2].QueueElementView.IsGlow && !this.QueueElementModelList[2].QueueElementView.OnCooldown)
             {
                 SkillController.Instance.State = 3;
                 return true;
@@ -102,7 +103,7 @@ namespace Controller.Queue
                 ) 
             {
                 CoreGamePlayController.Instance.State = 2;
-                Debug.Log("Game Over");
+                GameManager.Instance.LoseGame();
                 SkillController.Instance.State = 0;
                 return false;
             }

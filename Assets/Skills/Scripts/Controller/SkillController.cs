@@ -3,6 +3,7 @@ namespace Controller.Skill
     using Controller.Enemy;
     using CustomUtils;
     using Model.Skill.Bullet;
+    using View.Skill.Fire;
     using Model.Skill.Flag;
     using System.Collections;
     using System.Collections.Generic;
@@ -11,17 +12,19 @@ namespace Controller.Skill
     using View.Skill.Flag;
     using CustomUtils.Vukhoa;
     using Controller.Queue;
+    using Cotroller;
+    using Controller.Player;
 
     public class SkillController : SingletonMono<SkillController>
     {
         [Header(" Bullet Information ")]
         public BulletView BulletPrefab;
         public RectTransform BulletParentPointPrefab;
-        
-        private RectTransform _bulletParentPoint;
 
-        [Header(" Shoot ")]
+        [Header("  Shoot ")]
         public RectTransform PointPrefab;
+
+        private RectTransform _bulletParentPoint;
         
         private RectTransform _point;
         private List<BulletModel> _lstBullet;
@@ -88,7 +91,7 @@ namespace Controller.Skill
         {
 
             this._bulletParentPoint = Instantiate(this.BulletParentPointPrefab, this.transform);
-            this._point = Instantiate(this.PointPrefab, this.transform);
+            this._point = Instantiate(this.PointPrefab, CoreGamePlayController.Instance.transform);
         }
 
         private void SpawnBullet()
@@ -97,7 +100,7 @@ namespace Controller.Skill
 
             for (int i = 0; i < this._bulletSize; ++i)
             {
-                BulletView bulletGO = Instantiate(this.BulletPrefab, this._bulletParentPoint);
+                BulletView bulletGO = Instantiate(this.BulletPrefab, PlayerController.Instance.transform);
 
                 BulletModel bulletModel = new BulletModel();
                 bulletModel.SetView(bulletGO.GetComponent<BulletView>());
@@ -121,7 +124,7 @@ namespace Controller.Skill
                     this._lstBullet[i].IsUsed = true;
                     this._lstBullet[i].BulletView.SetActive(true);
                     this._lstBullet[i].BulletView.Shooting(
-                        this._point.anchoredPosition,
+                        this._point.transform.position,
                         index
                     );
                     break;
@@ -199,7 +202,7 @@ namespace Controller.Skill
         // ---------------------------------------------FireStorm--------------------------------------------//
         public void SpawnFireParents()
         {
-            this.FSParentAll = Instantiate(this.FSParentAllPrefab, this.transform);
+            this.FSParentAll = Instantiate(this.FSParentAllPrefab, PlayerController.Instance.transform);
             this._lstFireParent = new List<RectTransform>();
             for (int i = 0; i < this._sizeFireStorm; ++i)
             {
@@ -211,7 +214,7 @@ namespace Controller.Skill
         public void SpawnFireMoves()
         {
             this.LstFireMove = new List<RectTransform>();
-            RectTransform fiveMoveParent = Instantiate(this.FireMoveParentPrefab, this.FSParentAll);
+            RectTransform fiveMoveParent = Instantiate(this.FireMoveParentPrefab, PlayerController.Instance.transform);
             for (int i = 0; i < this._sizeFire; ++i)
             {
                 RectTransform fireMove = Instantiate(this.FireMovePrefab, fiveMoveParent);

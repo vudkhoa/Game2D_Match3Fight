@@ -65,7 +65,7 @@
                 if (!MatrixElementModelList[this.CurrentPos.x, this.CurrentPos.y].IsMatch
                     && !MatrixElementModelList[newPos.x, newPos.y].IsMatch)
                 {
-                    Debug.Log("Swap: " + this.CurrentPos + " - " + newPos);
+                    //Debug.Log("Swap: " + this.CurrentPos + " - " + newPos);
                     StartCoroutine(this.MatrixElementSwap(this.CurrentPos, newPos));
                     MatrixElementType currentType = MatrixElementModelList[this.CurrentPos.x, this.CurrentPos.y].MatrixElementType;
                     MatrixElementType newType = MatrixElementModelList[newPos.x, newPos.y].MatrixElementType;
@@ -378,7 +378,7 @@
             {
                 if (!this.CheckMap())
                 {
-                    Debug.Log("Not CheckMap");
+                    //Debug.Log("Not CheckMap");
                     StartCoroutine(this.ShuffleMap());
                 }
             }
