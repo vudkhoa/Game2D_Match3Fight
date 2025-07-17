@@ -4,4 +4,5 @@
 
 This project is created and maintained by [@vudkhoa](https://github.com/vudkhoa).
 
-(https://learn.microsoft.com/en-us/dotnet/csharp/)
+## Technologies Used
+[![Author](https://learn.microsoft.com/en-us/dotnet/media/logo_csharp.png)](https://learn.microsoft.com/en-us/dotnet/csharp/)
