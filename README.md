@@ -4,5 +4,5 @@
 
 This project is created and maintained by [@vudkhoa](https://github.com/vudkhoa).
 
-## Link Video
-https://drive.google.com/drive/folders/1nmoqedhy90QyMQ_RSjnANDbVki0K5QuZ
+## Links
+[Video Demo](https://drive.google.com/drive/folders/1nmoqedhy90QyMQ_RSjnANDbVki0K5QuZ)
